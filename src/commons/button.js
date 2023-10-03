@@ -48,4 +48,18 @@ module.exports = {
     marginTop: 10,
     textAlign: "center",
   },
+  floating_add_btn:{
+    borderWidth:1,
+    borderColor: "red",
+    alignItems: "center",
+    justifyContent: "center",
+    width:70,
+    position:"absolute",
+    bottom:50,
+    right: 20,
+    height:70,
+    backgroundColor: "green",
+    borderRadius: 100,
+    elevation: 5,
+  }
 };

@@ -38,7 +38,9 @@ const Login = ({ navigation }) => {
     try {
       AsyncStorage.getItem("token").then((value) => {
         if (value != null) {
-          navigation.navigate("welcome");
+          // console.log("41");
+          // console.log(AsyncStorage.getItem("token").value);
+          navigation.navigate("main");
         }
       });
     } catch (error) {
@@ -68,13 +70,13 @@ const Login = ({ navigation }) => {
             alert("Account Logged In successfully");
             // console.log(data.token);
             AsyncStorage.setItem("token", JSON.stringify(data.token));
-            navigation.navigate("welcome");
+            navigation.navigate("main");
           }
         });
     }
   };
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <View style={styles.box}>
         <Image source={img} style={{ width: 450, height: 450 }} />
       </View>
@@ -124,7 +126,7 @@ const Login = ({ navigation }) => {
             </Text>
           </View>
       </ScrollView>
-    </View>
+    </ScrollView>
   );
 };
 
