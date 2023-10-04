@@ -20,6 +20,7 @@ import {
 } from "../commons/button";
 import img from "../../assets/logo.png";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_BASE_URL } from '../../config';
 // import { signIn } from "../api/auth";
 
 const Login = ({ navigation }) => {
@@ -55,7 +56,7 @@ const Login = ({ navigation }) => {
       setErrmsg("All fields are required");
       return;
     } else {
-      await fetch("http://192.168.29.67:4000/login", {
+      await fetch(`${API_BASE_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

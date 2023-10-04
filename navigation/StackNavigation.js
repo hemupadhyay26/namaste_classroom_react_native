@@ -13,6 +13,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import Profile from "../src/screens/Profile";
 import BookClasses from "../src/screens/BookClasses";
+import MyBookings from "../src/screens/MyBookings";
 
 const StackNavigation = () => {
   const Stack = createNativeStackNavigator();
@@ -27,15 +28,11 @@ const StackNavigation = () => {
       right: 0,
       left: 0,
       elevation: 0,
-      height: 60,
+      height: 50,
       backgroundColor: "#fff",
     },
   };
-  // function navigationDrawer() {
-  //   <Drawer.Navigator>
-  //     <Drawer.Screen name="welcome" component={Welcome} />
-  //   </Drawer.Navigator>;
-  // }
+ 
   function BottomTabs() {
     return (
       <Tab.Navigator screenOptions={screenOptions}>
@@ -122,6 +119,7 @@ const StackNavigation = () => {
 
         <Stack.Screen name="verify" component={Verification} />
         <Stack.Screen name="main" component={BottomTabs} />
+        <Stack.Screen name="mybooking" component={MyBookings} />
       </Stack.Navigator>
     </NavigationContainer>
   );

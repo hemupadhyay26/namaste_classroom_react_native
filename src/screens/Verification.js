@@ -18,7 +18,7 @@ import {
   login_input,
 } from "../commons/button";
 import img from "../../assets/logo.png";
-// import { signIn } from "../api/auth";
+import { API_BASE_URL } from '../../config';
 
 const Verification = ({ navigation, route }) => {
   const { userData } = route.params;
@@ -41,7 +41,7 @@ const Verification = ({ navigation, route }) => {
         email: userData[0]?.email,
         password: userData[0]?.password,
       };
-      await fetch("http://192.168.29.67:4000/signup", {
+      await fetch(`${API_BASE_URL}/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

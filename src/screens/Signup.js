@@ -20,6 +20,7 @@ import {
   login_input,
 } from "../commons/button";
 import img from "../../assets/favicon.png";
+import { API_BASE_URL } from '../../config';
 // import { signUp } from "../api/auth";
 
 const Signup = ({ navigation }) => {
@@ -51,7 +52,7 @@ const Signup = ({ navigation }) => {
       return;
     } else {
       // console.log(fdata);
-      await fetch("http://192.168.29.67:4000/verify", {
+      await fetch(`${API_BASE_URL}/verify`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

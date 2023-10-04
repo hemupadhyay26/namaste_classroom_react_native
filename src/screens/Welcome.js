@@ -14,33 +14,13 @@ import { FloatingAction } from "react-native-floating-action";
 
 import CalendarPicker from "react-native-calendar-picker";
 
-const Welcome = ({ navigation, route }) => {
-  // console.log(route.params,"17");
-  // const [tableHead, setTableHead] = useState([
-  //   "Rooms",
-  //   "9:00 AM",
-  //   "10:00 AM",
-  //   "11:00 AM",
-  //   "12:00 PM",
-  //   "1:00 PM",
-  //   "2:00 PM",
-  //   "3:00 PM",
-  //   "4:00 PM",
-  //   "5:00 PM",
-  // ]);
-  // const [tableData, setTableData] = useState([
-  //   ["1", "2", "3", "4"],
-  //   ["a", "b", "c", "d"],
-  //   ["1", "2", "3", "456\n789"],
-  //   ["a", "b", "c", "d"],
-  // ]);
+const Welcome = ({ navigation }) => {
   const actions = [
     {
       text: "Add",
       icon: require("../../assets/ic_accessibility_white.png"),
       name: "booking",
       position: 2,
-
     },
     {
       text: "Language",
@@ -61,14 +41,7 @@ const Welcome = ({ navigation, route }) => {
       position: 4,
     },
   ];
-  const removeData = async () => {
-    try {
-      await AsyncStorage.clear();
-      navigation.navigate("login");
-    } catch (error) {
-      console.log(error);
-    }
-  };
+
   const [selectedStartDate, setSelectedStartDate] = useState(null);
   const [selectedEndDate, setSelectedEndDate] = useState(null);
   // const onDateChange = (date, type) => {
@@ -86,8 +59,16 @@ const Welcome = ({ navigation, route }) => {
   const startDate = selectedStartDate ? selectedStartDate.toString() : "";
   const endDate = selectedEndDate ? selectedEndDate.toString() : "";
 
+  // Get the current date
+  const currentDate = new Date();
+
+  // Define options for formatting the date
+  const options = { weekday: "long", day: "numeric" };
+
+  // Format the date as "Tuesday 8"
+  const formattedDate = currentDate.toLocaleDateString(undefined, options);
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       <View style={{ marginVertical: 40 }}>
         <CalendarPicker
           onDateChange={onDateChange}
@@ -100,40 +81,109 @@ const Welcome = ({ navigation, route }) => {
           previousTitle="<"
         />
       </View>
-      <ScrollView>
-        <Text>SELECTED DATE:{startDate}</Text>
-        <Text>SELECTED END DATE:{endDate}</Text>
-        
-      </ScrollView>
-      <FloatingAction
-        actions={actions}
-        color = "#ed1c24"
-        listenKeyboard = {true}
-        overrideWithAction ={true}
-        dismissKeyboardOnPress={true}
-        onPressItem={(name) => {
-          // console.log(`selected button: ${name}`);
-          navigation.navigate(`${name}`)
+      <Text
+        style={{
+          marginHorizontal: 20,
+          borderBottomWidth: 0.5,
+          paddingBottom: 5,
         }}
-      />
+      >
+        Today is &nbsp;
+        <Text
+          style={{
+            color: "#ED1C24",
+          }}
+        >
+          {formattedDate}
+        </Text>
+      </Text>
+      <ScrollView style={{ marginHorizontal: 20 }}>
+        {/* <Text>SELECTED DATE:{startDate}</Text>
+        <Text>SELECTED END DATE:{endDate}</Text> */}
 
-      {/* <View style={floating_add_btn}>
-        <TouchableOpacity>
-          <Text>Add</Text>
-        </TouchableOpacity>
-      </View> */}
-      {/* <View style={styles.container}>
-        <Table borderStyle={{ borderWidth: 2, borderColor: "#c8e1ff" }}>
-          <Row data={tableHead} style={styles.head} textStyle={styles.text} />
-          <Rows data={tableData} textStyle={styles.text} />
-        </Table>
-      </View> */}
-    </ScrollView>
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>Your Booked</Text>
+          </View>
+          <View style={styles.cardContent}>
+            <Text style={styles.cardText}>9:00 - 10:00</Text>
+            <Text style={styles.cardText}>Main Seminar Hall</Text>
+          </View>
+        </View>
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>Your Booked</Text>
+          </View>
+          <View style={styles.cardContent}>
+            <Text style={styles.cardText}>9:00 - 10:00</Text>
+            <Text style={styles.cardText}>Main Seminar Hall</Text>
+          </View>
+        </View>
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>Your Booked</Text>
+          </View>
+          <View style={styles.cardContent}>
+            <Text style={styles.cardText}>9:00 - 10:00</Text>
+            <Text style={styles.cardText}>Main Seminar Hall</Text>
+          </View>
+        </View>
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>Your Booked</Text>
+          </View>
+          <View style={styles.cardContent}>
+            <Text style={styles.cardText}>9:00 - 10:00</Text>
+            <Text style={styles.cardText}>Main Seminar Hall</Text>
+          </View>
+        </View>
+      </ScrollView>
+      <View style={{bottom:40}}>
+        <FloatingAction
+          actions={actions}
+          color="#ed1c24"
+          listenKeyboard={true}
+          overrideWithAction={true}
+          dismissKeyboardOnPress={true}
+          onPressItem={(name) => {
+            navigation.navigate(`${name}`);
+          }}
+        />
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
+  card: {
+    alignSelf: "center",
+    flexDirection: "row",
+    justifyContent: "center",
+    backgroundColor: "#fff",
+    width: "90%",
+    padding: 20,
+    paddingBottom: 22,
+    borderRadius: 10,
+    shadowOpacity: 80,
+    elevation: 15,
+    marginVertical: 20,
+  },
+  cardHeader: {
+    padding: 10,
+    borderBottomColor: "#eee",
+    borderBottomWidth: 1,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  cardContent: {
+    padding: 10,
+  },
+  cardText: {
+    fontSize: 16,
+  },
 });
 
 export default Welcome;

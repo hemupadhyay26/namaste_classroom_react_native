@@ -1,4 +1,9 @@
 module.exports = {
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   btn: {
     backgroundColor: "rgba(237, 28, 36, 1)",
     color: "#fff",
