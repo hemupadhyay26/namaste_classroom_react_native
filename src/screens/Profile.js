@@ -76,28 +76,28 @@ const Profile = ({ navigation }) => {
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
-      uploadProfileImage();
+      uploadProfileImage(result.assets[0].uri);
     }
   };
-  const uploadProfileImage = async () => {
+  const uploadProfileImage = async (path) => {
     const formData = new FormData();
     formData.append("profile", {
-      name: new Date() + "_profile.jpg",
-      uri: image,
+      name: Date.now() + "_profile.jpg",
+      uri: path,
       type: "image/jpg",
     });
 
-
-    axios({
-      method: "POST",
-      url: `${API_BASE_URL}/upload`,
-      data: formData
-    }).then(function(res){
-      console.log(res.data)
-    }).then((error)=>{
-      console.log('error-->',error)
-    })
-
+    try {
+      axios({
+        method: "POST",
+        url: `${API_BASE_URL}/upload`,
+        data: formData,
+      }).then(function (res) {
+        console.log(res.data);
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
   // ------------------//
   const [isEditable, setIsEditable] = useState(false);
