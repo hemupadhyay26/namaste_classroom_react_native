@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Image,
   ScrollView,
   StyleSheet,
@@ -20,7 +21,7 @@ import {
   login_input,
 } from "../commons/button";
 import img from "../../assets/favicon.png";
-import { API_BASE_URL } from '../../config';
+import { API_BASE_URL } from "../../config";
 // import { signUp } from "../api/auth";
 
 const Signup = ({ navigation }) => {
@@ -32,6 +33,7 @@ const Signup = ({ navigation }) => {
   });
 
   const [errmsg, setErrmsg] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   function isEmailValid(email) {
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
@@ -52,6 +54,7 @@ const Signup = ({ navigation }) => {
       return;
     } else {
       // console.log(fdata);
+      setLoading(true);
       await fetch(`${API_BASE_URL}/verify`, {
         method: "POST",
         headers: {
@@ -66,7 +69,8 @@ const Signup = ({ navigation }) => {
           } else {
             // console.log(data.udata);
             alert("Verification code has been sent successfully");
-            navigation.navigate("verify", {userData: data.udata});
+            setLoading(false);
+            navigation.navigate("verify", { userData: data.udata });
           }
         });
     }
@@ -126,7 +130,10 @@ const Signup = ({ navigation }) => {
               submitForm();
             }}
           >
-            <Text style={btn}>Signup</Text>
+            <Text style={btn}>
+              Signup
+              {loading && <ActivityIndicator size="small" color="#fff" />}
+            </Text>
           </TouchableOpacity>
           <Text style={h3}>
             Already Registered?

@@ -11,6 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_BASE_URL } from "../../config";
 import { Entypo, Feather } from "@expo/vector-icons";
 import { TextInput } from "react-native-gesture-handler";
+import * as ImagePicker from "expo-image-picker";
 
 const Profile = ({ navigation }) => {
   // const [userId, setUserId] = useState(null);
@@ -45,6 +46,8 @@ const Profile = ({ navigation }) => {
   //   }
   //   fetchData();
   // });
+
+  //
   const logout = async () => {
     try {
       await AsyncStorage.clear();
@@ -54,12 +57,34 @@ const Profile = ({ navigation }) => {
     }
   };
 
+  //profile pic
+
+  const [image, setImage] = useState(null);
+
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
   // ------------------//
   const [isEditable, setIsEditable] = useState(false);
   const [data, setData] = useState({
+    userName: "Earth Venus",
     email: "hem@gmail.com",
     address: "Rudrapur, Uttarakhand",
     phoneno: "8928384747",
+    age: "55",
+    gender: "Male",
   });
 
   const handleEditToggle = () => {
@@ -86,21 +111,96 @@ const Profile = ({ navigation }) => {
           }}
         ></View>
         <View style={{ alignItems: "center" }}>
-          <Image
-            source={require("../../assets/logo1.jpg")}
+          {image ? (
+            <Image
+              source={{ uri: image }}
+              style={{
+                width: 140,
+                height: 140,
+                borderRadius: 100,
+                marginTop: -70,
+              }}
+            />
+          ) : (
+            <Image
+              source={require("../../assets/logo1.jpg")}
+              style={{
+                width: 140,
+                height: 140,
+                borderRadius: 100,
+                marginTop: -70,
+              }}
+            ></Image>
+          )}
+
+          <TouchableOpacity
+            onPress={pickImage}
+            style={{ alignItems: "flex-end", top: -10 }}
+          >
+            <Entypo name="pencil" size={24} color="black" />
+          </TouchableOpacity>
+
+          <View
             style={{
-              width: 140,
-              height: 140,
-              borderRadius: 100,
-              marginTop: -70,
+              flex: 1,
+              margin: 3,
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
             }}
-          ></Image>
-          <Text style={{ fontSize: 25, fontWeight: "bold", padding: 10 }}>
-            Earth Venus
-          </Text>
-          <Text style={{ fontSize: 15, fontWeight: "bold", color: "gray" }}>
-            21, Male
-          </Text>
+          >
+            {isEditable ? (
+              <TextInput
+                style={styles.input}
+                value={data.userName}
+                placeholder="username"
+                onChangeText={(text) => handleTextChange("userName", text)}
+                autoFocus
+              />
+            ) : (
+              <Text style={{ fontSize: 25, fontWeight: "bold", padding: 10 }}>
+                {data.userName}
+              </Text>
+            )}
+            <TouchableOpacity
+              onPress={isEditable ? saveChanges : handleEditToggle}
+            >
+              <Text style={styles.edit_btn}>
+                {isEditable ? (
+                  <Feather name="save" size={24} color="black" />
+                ) : (
+                  <Feather name="edit" size={24} color="black" />
+                )}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {isEditable ? (
+            <View style={{ flex: 1, flexDirection: "row" }}>
+              <TextInput
+                style={styles.input}
+                value={data.age}
+                placeholder="age"
+                onChangeText={(text) => handleTextChange("age", text)}
+                autoFocus
+              />
+              <TextInput
+                style={styles.input}
+                value={data.gender}
+                placeholder="gender"
+                onChangeText={(text) => handleTextChange("gender", text)}
+                autoFocus
+              />
+            </View>
+          ) : (
+            <View style={{ flex: 1, flexDirection: "row" }}>
+              <Text style={{ fontSize: 15, fontWeight: "bold", color: "gray" }}>
+                {data.age},
+              </Text>
+              <Text style={{ fontSize: 15, fontWeight: "bold", color: "gray" }}>
+                {data.gender}
+              </Text>
+            </View>
+          )}
         </View>
         <View style={styles.profile_details}>
           <Entypo name="email" size={24} color="black" />
@@ -108,24 +208,13 @@ const Profile = ({ navigation }) => {
             <TextInput
               style={styles.input}
               value={data.email}
+              placeholder="email"
               onChangeText={(text) => handleTextChange("email", text)}
               autoFocus
             />
           ) : (
             <Text style={styles.text_format}>{data.email}</Text>
           )}
-          <TouchableOpacity
-            onPress={isEditable ? saveChanges : handleEditToggle}
-            style={styles.editButton}
-          >
-            <Text style={styles.edit_btn}>
-              {isEditable ? (
-                <Feather name="save" size={24} color="black" />
-              ) : (
-                <Feather name="edit" size={24} color="black" />
-              )}
-            </Text>
-          </TouchableOpacity>
         </View>
 
         <View style={styles.profile_details}>
@@ -134,22 +223,12 @@ const Profile = ({ navigation }) => {
             <TextInput
               style={styles.input}
               value={data.address}
+              placeholder="address"
               onChangeText={(text) => handleTextChange("address", text)}
             />
           ) : (
             <Text style={styles.text_format}>{data.address}</Text>
           )}
-          <TouchableOpacity
-            onPress={isEditable ? saveChanges : handleEditToggle}
-          >
-            <Text style={styles.edit_btn}>
-              {isEditable ? (
-                <Feather name="save" size={24} color="black" />
-              ) : (
-                <Feather name="edit" size={24} color="black" />
-              )}
-            </Text>
-          </TouchableOpacity>
         </View>
 
         <View style={styles.profile_details}>
@@ -158,22 +237,12 @@ const Profile = ({ navigation }) => {
             <TextInput
               style={styles.input}
               value={data.phoneno}
+              placeholder="phone number"
               onChangeText={(text) => handleTextChange("phoneno", text)}
             />
           ) : (
             <Text style={styles.text_format}>{data.phoneno}</Text>
           )}
-          <TouchableOpacity
-            onPress={isEditable ? saveChanges : handleEditToggle}
-          >
-            <Text style={styles.edit_btn}>
-              {isEditable ? (
-                <Feather name="save" size={24} color="black" />
-              ) : (
-                <Feather name="edit" size={24} color="black" />
-              )}
-            </Text>
-          </TouchableOpacity>
         </View>
         <TouchableOpacity
           style={styles.btn_profile}
@@ -216,6 +285,7 @@ const Profile = ({ navigation }) => {
               color: "#fff",
               fontWeight: "bold",
               marginLeft: 10,
+              marginBottom: 45,
             }}
           >
             LogOut

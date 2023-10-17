@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Profile from "../src/screens/Profile";
 import BookClasses from "../src/screens/BookClasses";
 import MyBookings from "../src/screens/MyBookings";
+import Home from "../src/screens/Home";
 
 const StackNavigation = () => {
   const Stack = createNativeStackNavigator();
@@ -37,8 +38,8 @@ const StackNavigation = () => {
     return (
       <Tab.Navigator screenOptions={screenOptions}>
         <Tab.Screen
-          name="welcome"
-          component={Welcome}
+          name="home"
+          component={Home}
           options={{
             tabBarIcon: ({ focused }) => {
               return (
@@ -114,6 +115,7 @@ const StackNavigation = () => {
           headerShown: false,
         }}
       >
+        <Stack.Screen name="welcome" component={Welcome} />
         <Stack.Screen name="login" component={Login} />
         <Stack.Screen name="signup" component={Signup} />
 

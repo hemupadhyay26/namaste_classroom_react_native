@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Image,
   ScrollView,
   StyleSheet,
@@ -7,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, {useState } from "react";
 import {
   box2,
   btn,
@@ -20,7 +21,7 @@ import {
 } from "../commons/button";
 import img from "../../assets/logo.png";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { API_BASE_URL } from '../../config';
+import { API_BASE_URL } from "../../config";
 // import { signIn } from "../api/auth";
 
 const Login = ({ navigation }) => {
@@ -30,24 +31,9 @@ const Login = ({ navigation }) => {
   });
 
   const [errmsg, setErrmsg] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    getData();
-  }, []);
-
-  const getData = () => {
-    try {
-      AsyncStorage.getItem("token").then((value) => {
-        if (value != null) {
-          // console.log("41");
-          // console.log(AsyncStorage.getItem("token").value);
-          navigation.navigate("main");
-        }
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  
 
   const submitForm = async () => {
     // console.log(fdata);
@@ -56,6 +42,7 @@ const Login = ({ navigation }) => {
       setErrmsg("All fields are required");
       return;
     } else {
+      setLoading(true);
       await fetch(`${API_BASE_URL}/login`, {
         method: "POST",
         headers: {
@@ -70,6 +57,7 @@ const Login = ({ navigation }) => {
           } else {
             alert("Account Logged In successfully");
             // console.log(data.token);
+            setLoading(false);
             AsyncStorage.setItem("token", JSON.stringify(data.token));
             navigation.navigate("main");
           }
@@ -82,50 +70,53 @@ const Login = ({ navigation }) => {
         <Image source={img} style={{ width: 450, height: 450 }} />
       </View>
       <ScrollView style={box2}>
-          <Text style={h1}>Login</Text>
-          <Text style={h2}>Sign in to continue</Text>
-          <View style={login_input}>
-            <Text style={label}>
-              {errmsg ? <Text style={{ color: "red" }}>*{errmsg}</Text> : null}
-            </Text>
-            <View style={form_grp}>
-              <Text style={label}>Email</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter name here"
-                onChangeText={(text) => setFdata({ ...fdata, email: text })}
-                onPressIn={() => setErrmsg(null)}
-              />
-            </View>
-
-            <View style={form_grp}>
-              <Text style={label}>Password</Text>
-              <TextInput
-                style={styles.input}
-                secureTextEntry={true}
-                placeholder="**********"
-                onChangeText={(text) => setFdata({ ...fdata, password: text })}
-                onPressIn={() => setErrmsg(null)}
-              />
-            </View>
-
-            <TouchableOpacity
-              onPress={() => {
-                submitForm();
-              }}
-            >
-              <Text style={btn}>Login</Text>
-            </TouchableOpacity>
-            <Text style={h3}>
-              Don't have an account?
-              <Text
-                style={{ color: "#ed1c24" }}
-                onPress={() => navigation.navigate("signup")}
-              >
-                Signup
-              </Text>
-            </Text>
+        <Text style={h1}>Login</Text>
+        <Text style={h2}>Sign in to continue</Text>
+        <View style={login_input}>
+          <Text style={label}>
+            {errmsg ? <Text style={{ color: "red" }}>*{errmsg}</Text> : null}
+          </Text>
+          <View style={form_grp}>
+            <Text style={label}>Email</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter name here"
+              onChangeText={(text) => setFdata({ ...fdata, email: text })}
+              onPressIn={() => setErrmsg(null)}
+            />
           </View>
+
+          <View style={form_grp}>
+            <Text style={label}>Password</Text>
+            <TextInput
+              style={styles.input}
+              secureTextEntry={true}
+              placeholder="**********"
+              onChangeText={(text) => setFdata({ ...fdata, password: text })}
+              onPressIn={() => setErrmsg(null)}
+            />
+          </View>
+
+          <TouchableOpacity
+            onPress={() => {
+              submitForm();
+            }}
+          >
+            <Text style={btn}>
+              Login
+              {loading && <ActivityIndicator size="small" color="#fff" />}
+            </Text>
+          </TouchableOpacity>
+          <Text style={h3}>
+            Don't have an account?
+            <Text
+              style={{ color: "#ed1c24" }}
+              onPress={() => navigation.navigate("signup")}
+            >
+              Signup
+            </Text>
+          </Text>
+        </View>
       </ScrollView>
     </ScrollView>
   );
