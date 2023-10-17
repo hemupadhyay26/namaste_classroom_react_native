@@ -9,9 +9,11 @@ import {
 import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_BASE_URL } from "../../config";
-import { Entypo, Feather } from "@expo/vector-icons";
+import { Entypo, Feather, AntDesign } from "@expo/vector-icons";
 import { TextInput } from "react-native-gesture-handler";
 import * as ImagePicker from "expo-image-picker";
+import { StackActions } from "@react-navigation/native";
+import axios from "axios";
 
 const Profile = ({ navigation }) => {
   // const [userId, setUserId] = useState(null);
@@ -74,7 +76,28 @@ const Profile = ({ navigation }) => {
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
+      uploadProfileImage();
     }
+  };
+  const uploadProfileImage = async () => {
+    const formData = new FormData();
+    formData.append("profile", {
+      name: new Date() + "_profile.jpg",
+      uri: image,
+      type: "image/jpg",
+    });
+
+
+    axios({
+      method: "POST",
+      url: `${API_BASE_URL}/upload`,
+      data: formData
+    }).then(function(res){
+      console.log(res.data)
+    }).then((error)=>{
+      console.log('error-->',error)
+    })
+
   };
   // ------------------//
   const [isEditable, setIsEditable] = useState(false);
@@ -133,11 +156,8 @@ const Profile = ({ navigation }) => {
             ></Image>
           )}
 
-          <TouchableOpacity
-            onPress={pickImage}
-            style={{ alignItems: "flex-end", top: -10 }}
-          >
-            <Entypo name="pencil" size={24} color="black" />
+          <TouchableOpacity onPress={pickImage} style={{ margin: 5 }}>
+            <AntDesign name="plussquareo" size={24} color="green" />
           </TouchableOpacity>
 
           <View
