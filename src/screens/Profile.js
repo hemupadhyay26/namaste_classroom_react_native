@@ -16,38 +16,106 @@ import { StackActions } from "@react-navigation/native";
 import axios from "axios";
 
 const Profile = ({ navigation }) => {
+  // ------------------//
+  const [isEditable, setIsEditable] = useState(false);
+  const [data, setData] = useState({
+    firstName: "---",
+    lastName: "---",
+    email: "--@gmail.com",
+    address: "--, --",
+    phoneNo: "-- -- --",
+    age: "--",
+    gender: "----",
+  });
+
+  const handleEditToggle = () => {
+    setIsEditable(!isEditable);
+  };
+
+  const saveChanges = async () => {
+    const { firstName, lastName, email } = data;
+    if (!firstName || !lastName || !email) {
+      console.log("error saving changes");
+      return;
+    }
+    try {
+      let userId = "";
+      await AsyncStorage.getItem("token").then((value) => {
+        userId = value;
+      });
+      axios
+        .post(`${API_BASE_URL}/profile`, data, {
+          headers: {
+            Authorization: `Bearer ${userId}`,
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          handleEditToggle();
+        })
+        .catch((error) => {
+          // Handle any errors here
+          console.error(error);
+        });
+    } catch (error) {
+      console.log("error" + error.message);
+    }
+  };
+
+  const handleTextChange = (key, newText) => {
+    setData({ ...data, [key]: newText });
+  };
+  // -----------------//
   // const [userId, setUserId] = useState(null);
-  // useEffect(() => {
-  //   async function fetchData() {
-  //     try {
-  //       await AsyncStorage.getItem("token").then((value) => {
-  //         setUserId(value);
-  //       });
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        let userId = "";
+        await AsyncStorage.getItem("token").then((value) => {
+          userId = value;
+        });
 
-  //       // console.log("16");
-  //       // console.log(userId);
-  //       const response = await fetch(`${API_BASE_URL}/profile`, {
-  //         method: "GET",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           authorization: `Bearer ${userId}`,
-  //         },
-  //       });
-  //       // console.log(response);
+        // console.log("16");
+        // console.log(userId);
+        axios
+          .get(`${API_BASE_URL}/profile`, {
+            headers: {
+              Authorization: `Bearer ${userId}`, // Assuming it's a Bearer token
+            },
+          })
+          .then((response) => {
+            // Handle the successful
+            // console.log(response.data);
+            setData(response.data);
+          })
+          .catch((error) => {
+            // Handle any errors here
+            console.error(error);
+          });
+        // const response = await fetch(`${API_BASE_URL}/profile`, {
+        //   method: "GET",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //     authorization: `Bearer ${userId}`,
+        //   },
+        // });
+        // // console.log(response);
 
-  //       if (response.error) {
-  //         const errorData = await response.json();
-  //         setErrmsg(errorData.error);
-  //       } else {
-  //         const data = await response.json();
-  //         console.log(data);
-  //       }
-  //     } catch (error) {
-  //       console.error("An error occurred:", error);
-  //     }
-  //   }
-  //   fetchData();
-  // });
+        // if (response.error) {
+        //   const errorData = await response.json();
+        //   setErrmsg(errorData.error);
+        // } else {
+        //   const data = await response.json();
+        //   console.log(data);
+        //   handleTextChange("email", data.email);
+        //   handleTextChange("userName", data.firstName);
+        // }
+      } catch (error) {
+        console.error("An error occurred:", error);
+      }
+    }
+    fetchData();
+  }, []);
 
   //
   const logout = async () => {
@@ -99,29 +167,7 @@ const Profile = ({ navigation }) => {
       console.log(error);
     }
   };
-  // ------------------//
-  const [isEditable, setIsEditable] = useState(false);
-  const [data, setData] = useState({
-    userName: "Earth Venus",
-    email: "hem@gmail.com",
-    address: "Rudrapur, Uttarakhand",
-    phoneno: "8928384747",
-    age: "55",
-    gender: "Male",
-  });
 
-  const handleEditToggle = () => {
-    setIsEditable(!isEditable);
-  };
-
-  const saveChanges = () => {
-    handleEditToggle();
-  };
-
-  const handleTextChange = (key, newText) => {
-    setData({ ...data, [key]: newText });
-  };
-  // -----------------//
   return (
     <View>
       <ScrollView contentContainerStyle={styles.scrollViewContainer}>
@@ -170,16 +216,25 @@ const Profile = ({ navigation }) => {
             }}
           >
             {isEditable ? (
-              <TextInput
-                style={styles.input}
-                value={data.userName}
-                placeholder="username"
-                onChangeText={(text) => handleTextChange("userName", text)}
-                autoFocus
-              />
+              <View>
+                <TextInput
+                  style={styles.input}
+                  value={data.firstName}
+                  placeholder="username"
+                  onChangeText={(text) => handleTextChange("firstName", text)}
+                  autoFocus
+                />
+                <TextInput
+                  style={styles.input}
+                  value={data.lastName}
+                  placeholder="username"
+                  onChangeText={(text) => handleTextChange("lastName", text)}
+                  autoFocus
+                />
+              </View>
             ) : (
               <Text style={{ fontSize: 25, fontWeight: "bold", padding: 10 }}>
-                {data.userName}
+                {data.firstName + " " + data.lastName || "Username"}
               </Text>
             )}
             <TouchableOpacity
@@ -204,7 +259,7 @@ const Profile = ({ navigation }) => {
                 autoFocus
               />
               <TextInput
-                style={styles.input}
+                style={{ marginLeft: 5 }}
                 value={data.gender}
                 placeholder="gender"
                 onChangeText={(text) => handleTextChange("gender", text)}
@@ -214,10 +269,10 @@ const Profile = ({ navigation }) => {
           ) : (
             <View style={{ flex: 1, flexDirection: "row" }}>
               <Text style={{ fontSize: 15, fontWeight: "bold", color: "gray" }}>
-                {data.age},
+                {data.age || "Age"},
               </Text>
               <Text style={{ fontSize: 15, fontWeight: "bold", color: "gray" }}>
-                {data.gender}
+                {data.gender || "Gender"}
               </Text>
             </View>
           )}
@@ -247,7 +302,7 @@ const Profile = ({ navigation }) => {
               onChangeText={(text) => handleTextChange("address", text)}
             />
           ) : (
-            <Text style={styles.text_format}>{data.address}</Text>
+            <Text style={styles.text_format}>{data.address || "Address"}</Text>
           )}
         </View>
 
@@ -256,56 +311,65 @@ const Profile = ({ navigation }) => {
           {isEditable ? (
             <TextInput
               style={styles.input}
-              value={data.phoneno}
+              value={data.phoneNo}
               placeholder="phone number"
-              onChangeText={(text) => handleTextChange("phoneno", text)}
+              onChangeText={(text) => handleTextChange("phoneNo", text)}
             />
           ) : (
-            <Text style={styles.text_format}>{data.phoneno}</Text>
+            <Text style={styles.text_format}>
+              {data.phoneNo || "Phone Number"}
+            </Text>
           )}
         </View>
-        <TouchableOpacity
-          style={styles.btn_profile}
-          onPress={() => {
-            navigation.navigate("booking");
+        <View
+          style={{
+            flexDirection: "row", // Horizontally align the buttons
+            justifyContent: "space-around",
           }}
         >
-          <Text
-            style={{
-              fontSize: 15,
-              color: "#fff",
-              fontWeight: "bold",
-              marginLeft: 10,
+          <TouchableOpacity
+            style={styles.btn_profile}
+            onPress={() => {
+              navigation.navigate("booking");
             }}
           >
-            Check Availability
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.btn_profile}
-          onPress={() => {
-            navigation.navigate("mybooking");
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 15,
-              color: "#fff",
-              fontWeight: "bold",
-              marginLeft: 10,
+            <Text
+              style={{
+                fontSize: 15,
+                color: "#fff",
+                fontWeight: "bold",
+                marginLeft: 10,
+              }}
+            >
+              Check Availability
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.btn_profile}
+            onPress={() => {
+              navigation.navigate("mybooking");
             }}
           >
-            My Bookings
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.btn_profile} onPress={logout}>
+            <Text
+              style={{
+                fontSize: 15,
+                color: "#fff",
+                fontWeight: "bold",
+                marginLeft: 10,
+              }}
+            >
+              My Bookings
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity style={styles.btn_profile2} onPress={logout}>
           <Text
             style={{
               fontSize: 15,
               color: "#fff",
               fontWeight: "bold",
               marginLeft: 10,
-              marginBottom: 45,
+              marginBottom: 10,
             }}
           >
             LogOut
@@ -347,16 +411,29 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   btn_profile: {
-    alignSelf: "center",
-    flexDirection: "row",
-    justifyContent: "center",
+    
     backgroundColor: "#000",
-    width: "90%",
-    padding: 20,
-    paddingBottom: 22,
+    alignSelf: "center",
+    padding: 30,
     borderRadius: 10,
     shadowOpacity: 80,
     elevation: 15,
-    marginTop: 20,
+    marginTop: 30,
+    width: "45%",
+  },
+  btn_profile2: {
+    width: "95%",
+    flexDirection: "row",
+    justifyContent: "center",
+    paddingBottom: 22,
+    backgroundColor: "#000",
+    alignSelf: "center",
+    backgroundColor:'#ed1c24',
+    padding: 20,
+    borderRadius: 10,
+    shadowOpacity: 80,
+    elevation: 15,
+    margin: 10,
+    // marginHorizontal:60,
   },
 });
