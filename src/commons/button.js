@@ -11,6 +11,7 @@ module.exports = {
     borderRadius: 5,
     marginTop: 20,
     textAlign: "center",
+    // justifyContent: "center",
     borderRadius: 50,
   },
   h1: {

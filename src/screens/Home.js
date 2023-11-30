@@ -11,35 +11,43 @@ import {
 import { btn, floating_add_btn } from "../commons/button";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FloatingAction } from "react-native-floating-action";
+import { AntDesign, Ionicons, Entypo } from "@expo/vector-icons";
 
 import CalendarPicker from "react-native-calendar-picker";
+import Floating_btn from "../commons/Floating_btn";
 
 const Welcome = ({ navigation }) => {
   const actions = [
     {
       text: "Add",
-      icon: require("../../assets/ic_accessibility_white.png"),
+      icon: <AntDesign name="plus" size={24} color="#fff" />,
       name: "booking",
-      position: 2,
-    },
-    {
-      text: "Language",
-      // icon: require("./images/ic_language_white.png"),
-      name: "bt_language",
       position: 1,
     },
     {
-      text: "Location",
-      // icon: require("./images/ic_room_white.png"),
-      name: "bt_room",
-      position: 3,
+      text: "profile",
+      icon: <Ionicons name="person-circle" size={24} color="#fff" />,
+      name: "profile",
+      position: 2,
     },
     {
-      text: "Video",
-      // icon: require("./images/ic_videocam_white.png"),
-      name: "bt_videocam",
-      position: 4,
+      text: "My Booking",
+      icon: <Entypo name="list" size={24} color="#fff" />,
+      name: "mybooking",
+      position: 3,
     },
+    // {
+    //   text: "Location",
+    //   icon: require("./images/ic_room_white.png"),
+    //   name: "bt_room",
+    //   position: 3,
+    // },
+    // {
+    //   text: "Video",
+    //   icon: require("./images/ic_videocam_white.png"),
+    //   name: "bt_videocam",
+    //   position: 4,
+    // },
   ];
 
   const [selectedStartDate, setSelectedStartDate] = useState(null);
@@ -138,17 +146,8 @@ const Welcome = ({ navigation }) => {
           </View>
         </View>
       </ScrollView>
-      <View style={{bottom:40}}>
-        <FloatingAction
-          actions={actions}
-          color="#ed1c24"
-          listenKeyboard={true}
-          overrideWithAction={true}
-          dismissKeyboardOnPress={true}
-          onPressItem={(name) => {
-            navigation.navigate(`${name}`);
-          }}
-        />
+      <View style={{ bottom: 40 }}>
+        <Floating_btn navigation={navigation}/>
       </View>
     </View>
   );

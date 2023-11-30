@@ -12,7 +12,6 @@ import { API_BASE_URL } from "../../config";
 import { Entypo, Feather, AntDesign } from "@expo/vector-icons";
 import { TextInput } from "react-native-gesture-handler";
 import * as ImagePicker from "expo-image-picker";
-import { StackActions } from "@react-navigation/native";
 import axios from "axios";
 
 const Profile = ({ navigation }) => {
@@ -26,6 +25,7 @@ const Profile = ({ navigation }) => {
     phoneNo: "-- -- --",
     age: "--",
     gender: "----",
+    profile: "",
   });
 
   const handleEditToggle = () => {
@@ -85,8 +85,22 @@ const Profile = ({ navigation }) => {
           })
           .then((response) => {
             // Handle the successful
-            // console.log(response.data);
+            // console.log("89-->", response.data);
             setData(response.data);
+            if (response.data.profile) {
+              axios
+                .get(`${API_BASE_URL}/url/${response.data.profile}`, {
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                })
+                .then((response) => {
+                  setImage(response.data);
+                })
+                .catch((err) => {
+                  console.log(err);
+                });
+            }
           })
           .catch((error) => {
             // Handle any errors here
@@ -140,14 +154,18 @@ const Profile = ({ navigation }) => {
       quality: 1,
     });
 
-    console.log(result);
+    // console.log(result);
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
       uploadProfileImage(result.assets[0].uri);
+
+      // console.log("162-->", data);
+      saveChanges();
+      // console.log("162-->",data);
     }
   };
   const uploadProfileImage = async (path) => {
+    // setImage(path);
     const formData = new FormData();
     formData.append("profile", {
       name: Date.now() + "_profile.jpg",
@@ -161,7 +179,8 @@ const Profile = ({ navigation }) => {
         url: `${API_BASE_URL}/upload`,
         data: formData,
       }).then(function (res) {
-        console.log(res.data);
+        setImage(res.data.url);
+        handleTextChange("profile", res.data.filename);
       });
     } catch (error) {
       console.log(error);
@@ -411,7 +430,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   btn_profile: {
-    
     backgroundColor: "#000",
     alignSelf: "center",
     padding: 30,
@@ -428,7 +446,7 @@ const styles = StyleSheet.create({
     paddingBottom: 22,
     backgroundColor: "#000",
     alignSelf: "center",
-    backgroundColor:'#ed1c24',
+    backgroundColor: "#ed1c24",
     padding: 20,
     borderRadius: 10,
     shadowOpacity: 80,
