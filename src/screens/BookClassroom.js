@@ -3,6 +3,10 @@ import {
   StyleSheet,
   Text,
   View,
+  Button,
+  Modal,
+  Image,
+  Animated,
   TextInput,
   TouchableOpacity,
 } from "react-native";
@@ -10,7 +14,6 @@ import React, { useState } from "react";
 import { useRoute } from "@react-navigation/native";
 import axios from "axios";
 import { Ionicons } from "@expo/vector-icons";
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { API_BASE_URL } from "../../config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
@@ -19,6 +22,7 @@ import {
 } from "react-native-dropdown-select-list";
 
 const BookClassroom = ({ navigation }) => {
+  const [modalVisible, setModalVisible] = useState(false);
   const route = useRoute();
   const { data } = route.params;
 
@@ -117,7 +121,7 @@ const BookClassroom = ({ navigation }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.header}>Room Booking Form</Text>
+      <Text style={styles.header}>Booking Form</Text>
       <View style={styles.formContainer}>
         <Text style={styles.label}>Room Name: {data.name}</Text>
         <Text style={styles.label}>
@@ -125,49 +129,6 @@ const BookClassroom = ({ navigation }) => {
         </Text>
         <Text style={styles.label}>Floor: {data.floor}</Text>
         <View style={styles.formContainer}>
-          {/* <TextInput
-            style={styles.input}
-            placeholder="User ID"
-            onChangeText={(text) =>
-              setBookingData({ ...bookingData, user: text })
-            }
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Booking Start Date and Time"
-            onChangeText={(text) =>
-              setBookingData({ ...bookingData, bookingStart: text })
-            }
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Booking End Date and Time"
-            onChangeText={(text) =>
-              setBookingData({ ...bookingData, bookingEnd: text })
-            }
-          />
-
-           <TextInput
-            style={styles.input}
-            placeholder="Recurring (optional)"
-            onChangeText={(text) =>
-              setBookingData({ ...bookingData, recurring: text })
-            }
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Business Unit"
-            onChangeText={(text) =>
-              setBookingData({ ...bookingData, businessUnit: text })
-            }
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Purpose"
-            onChangeText={(text) =>
-              setBookingData({ ...bookingData, purpose: text })
-            }
-          /> */}
           <SelectList
             setSelected={(val) => setSelected(val)}
             data={startTime}
@@ -213,9 +174,32 @@ const BookClassroom = ({ navigation }) => {
             }
           /> */}
         </View>
-        <TouchableOpacity style={styles.button} onPress={handleBooking}>
-          <Text style={styles.buttonText}>Book Room</Text>
+        <TouchableOpacity onPress={handleBooking}>
+          <Button title="Book Room"  color={"#ed1c24"}  onPress={() => setModalVisible(true)} />
         </TouchableOpacity>
+      </View>
+      <View style={styles.container}>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => {
+            setModalVisible(!modalVisible);
+          }}
+        >
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <Text style={{ margin: 20 }}>
+                You have successfully add the booking!!!!
+              </Text>
+              <Button
+                title="Close"
+                color={"#f2c94c"}
+                onPress={() => setModalVisible(!modalVisible)}
+              />
+            </View>
+          </View>
+        </Modal>
       </View>
     </ScrollView>
   );
@@ -248,7 +232,7 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   button: {
-    backgroundColor: "blue",
+    backgroundColor: "#ed1c24",
     padding: 15,
     borderRadius: 5,
   },
@@ -256,6 +240,28 @@ const styles = StyleSheet.create({
     color: "white",
     textAlign: "center",
     fontWeight: "bold",
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    // width:10,
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
 });
 

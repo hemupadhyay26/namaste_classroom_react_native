@@ -37,45 +37,49 @@ const BookClasses = ({ navigation }) => {
     roomsData();
   }, []);
 
-  const [selected, setSelected] = useState("");
+  const [selectedFloor, setSelectedFloor] = useState([]);
+  const [selectedCapacity, setSelectedCapacity] = useState([]);
 
   const floors = [
-    { key: "1", value: "First" },
-    { key: "2", value: "Second" },
-    { key: "3", value: "Third" },
-  ];
-
-  const classes = [
-    { key: "1", value: "LAB 02" },
-    { key: "2", value: "Micro Lab" },
-    { key: "3", value: "Seminar hall" },
-    { key: "4", value: "LTA-01" },
-    { key: "5", value: "LTA-02" },
-    { key: "6", value: "LTA-03" },
-    { key: "7", value: "LTA-04" },
-    { key: "8", value: "LTA-05" },
-    { key: "9", value: "LTA-06" },
-    { key: "10", value: "LTA-07" },
+    { key: "1", value: "Ground" },
+    { key: "2", value: "First" },
+    { key: "3", value: "Second" },
   ];
 
   const capacitys = [
-    { key: "1", value: "16 seats" },
-    { key: "2", value: "18 seats" },
-    { key: "3", value: "20 seats" },
-    { key: "4", value: "24 seats" },
-    { key: "5", value: "40 seats" },
-  ];
-
-  const availabiltys = [
-    { key: "1", value: "Full available" },
-    { key: "2", value: "Partly available" },
-    { key: "3", value: "Fully Booked" },
+    { key: "1", value: "16" },
+    { key: "2", value: "18" },
+    { key: "3", value: "30" },
+    { key: "4", value: "50" },
+    { key: "5", value: "60" },
   ];
 
   const [viewFilters, setViewFilters] = useState(true);
 
   const filterData = () => {
-    console.log(selected);
+    // console.log("Capacity "+selectedCapacity);
+    // console.log("Floor "+selectedFloor);
+    const filterData = {
+      floor: selectedFloor,
+      capacity: selectedCapacity,
+    };
+
+    try {
+      axios
+        .post(`${API_BASE_URL}/filter`, filterData, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          setRoomList(response.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } catch (error) {
+      console.error(error);
+    }
   };
   return (
     // <DrawerNavigation/>
@@ -97,7 +101,7 @@ const BookClasses = ({ navigation }) => {
           <View style={styles.container}>
             <Text> Floor </Text>
             <MultipleSelectList
-              setSelected={(val) => setSelected(val)}
+              setSelected={(val) => setSelectedFloor(val)}
               data={floors}
               save="value"
               placeholder="Select the floor"
@@ -106,35 +110,13 @@ const BookClasses = ({ navigation }) => {
           </View>
 
           <View style={styles.container}>
-            <Text> Class </Text>
-            <MultipleSelectList
-              setSelected={(val) => setSelected(val)}
-              data={classes}
-              save="value"
-              placeholder="Select the class"
-              label="Classes"
-            />
-          </View>
-
-          <View style={styles.container}>
             <Text> Capacity </Text>
             <MultipleSelectList
-              setSelected={(val) => setSelected(val)}
+              setSelected={(val) => setSelectedCapacity(val)}
               data={capacitys}
               save="value"
               placeholder="Select the capacity"
               label="Capacity"
-            />
-          </View>
-
-          <View style={styles.container}>
-            <Text> Availability </Text>
-            <MultipleSelectList
-              setSelected={(val) => setSelected(val)}
-              data={availabiltys}
-              save="value"
-              placeholder="Select the availability"
-              label="Availability"
             />
           </View>
 
@@ -157,6 +139,7 @@ const BookClasses = ({ navigation }) => {
             <TouchableOpacity
               onPress={() => {
                 // setSelected("");
+                // roomsData();
                 console.log(roomList[0]);
               }}
             >
@@ -200,17 +183,17 @@ const BookClasses = ({ navigation }) => {
       {roomList.map((room) => (
         <TouchableOpacity
           onPress={() => {
-            navigation.navigate("bookclassroom",{data: room});
+            navigation.navigate("bookclassroom", { data: room });
           }}
         >
-          <View style={styles.card} key={room.id}>
+          <View style={styles.card} key={room._id}>
             <View style={styles.cardHeader}>
               <Text style={styles.cardTitle}>{room.name}</Text>
             </View>
             <View style={styles.cardContent}>
               <Text style={styles.cardText}>Capacity - {room.capacity}</Text>
               <Text style={styles.cardText}>Floors - {room.floor}</Text>
-              <Text style={styles.cardText} key={room.id}>
+              <Text style={styles.cardText} key={room._id}>
                 Assets -{" "}
                 {Object.keys(room.assets).filter(
                   (asset) => room.assets[asset] === true
