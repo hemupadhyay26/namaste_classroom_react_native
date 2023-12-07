@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
 import DrawerNavigation from "../../navigation/DrawerNavigation";
 import axios from "axios";
@@ -25,7 +25,7 @@ const MyBookings = ({ navigation }) => {
           },
         })
         .then((response) => {
-          // console.log(response.data);
+          console.log(response.data);
           setBookings(response.data);
         })
         .catch((error) => {
@@ -35,6 +35,20 @@ const MyBookings = ({ navigation }) => {
     mybookings();
   }, []);
 
+  const [expandedBookingIndex, setExpandedBookingIndex] = useState(null);
+
+  const handleExpand = (index) => {
+    setExpandedBookingIndex(index === expandedBookingIndex ? null : index);
+  };
+
+  const isRecurringDailyWeeklyMonthly = (recurringArray) => {
+    return recurringArray.some(
+      (recurrence) =>
+        recurrence[1] === "Daily" ||
+        recurrence[1] === "Weekly" ||
+        recurrence[1] === "Monthly"
+    );
+  };
   // const startTime = momentTimezone
   // .tz(bookings.bookingStart, "Asia/Kolkata")
   // .format("h.mma");
@@ -44,28 +58,80 @@ const MyBookings = ({ navigation }) => {
   return (
     <View style={styles.main}>
       <ScrollView contentContainerStyle={{ marginVertical: 40 }}>
-        {bookings.map((booking) => (
+        <Text
+          style={{
+            fontSize: 50,
+            fontWeight: "bold",
+            textAlign: "center",
+            width: "100%",
+            marginBottom: 20,
+          }}
+        >
+          My Bookings
+        </Text>
+        {bookings.map((booking, index) => (
           <View style={styles.card} key={booking._id}>
             <View style={styles.cardHeader}>
               <Text style={styles.cardTitle}>{booking.name}</Text>
             </View>
-            <View style={styles.cardContent} key={booking._id}>
-              {booking.bookings.map((booking) => (
-                <View key={booking._id}>
-                  <Text style={styles.cardText}>
-                    {momentTimezone
-                      .tz(booking.bookingStart, "Asia/Kolkata")
-                      .format("h.mma")}{" "}
-                    -{" "}
-                    {momentTimezone
-                      .tz(booking.bookingEnd, "Asia/Kolkata")
-                      .format("h.mma")}
-                  </Text>
-                  <Text style={styles.cardText}>Duration: {booking.duration}mins</Text>
-                  <Text style={styles.cardText}>{booking.businessUnit}</Text>
-                  <Text style={styles.cardText}>Event: {booking.purpose}</Text>
-                </View>
-              ))}
+            <View style={styles.cardContent}>
+              {booking.bookings.map((booking, bIndex) =>
+                bIndex === 0 ? (
+                  <View key={booking._id}>
+                    <View>
+                      <Text style={styles.cardText}>
+                        Event: {booking.purpose}
+                      </Text>
+                      <Text style={styles.cardText}>
+                        On:{" "}
+                        {momentTimezone
+                          .tz(booking.bookingStart, "Asia/Kolkata")
+                          .format("DD-MM-YY")}
+                      </Text>
+                      <Text style={styles.cardText}>
+                        {momentTimezone
+                          .tz(booking.bookingStart, "Asia/Kolkata")
+                          .format("h.mma")}{" "}
+                        -{" "}
+                        {momentTimezone
+                          .tz(booking.bookingEnd, "Asia/Kolkata")
+                          .format("h.mma")}
+                      </Text>
+                      <Text style={styles.cardText}>
+                        Duration: {booking.duration} mins
+                      </Text>
+                      <Text style={styles.cardText}>
+                        Recurrence: {booking.recurring[1]}
+                      </Text>
+                      <Text style={styles.cardText}>
+                        Till:{" "}
+                        {booking.recurring[0][2] +
+                          "-" +
+                          booking.recurring[0][1] +
+                          1 +
+                          "-" +
+                          booking.recurring[0][0]}
+                      </Text>
+                      <Text style={styles.cardText}>
+                        Business: {booking.businessUnit}
+                      </Text>
+                    </View>
+                  </View>
+                ) : null
+              )}
+              <TouchableOpacity style={styles.btn_profile2}>
+                <Text
+                  style={{
+                    fontSize: 15,
+                    color: "#fff",
+                    fontWeight: "bold",
+                    marginLeft: 10,
+                    marginBottom: 10,
+                  }}
+                >
+                  Edit
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         ))}
@@ -82,47 +148,61 @@ export default MyBookings;
 const styles = StyleSheet.create({
   main: {
     flex: 1,
-    justifyContent: "space-between",
+    backgroundColor: "#f0f0f0",
+    padding: 20,
   },
 
   card: {
-    alignSelf: "center",
-    flexDirection: "row",
-    justifyContent: "center",
     backgroundColor: "#fff",
-    width: "90%",
-    padding: 20,
-    paddingBottom: 22,
     borderRadius: 10,
-    shadowOpacity: 80,
-    elevation: 15,
-    marginVertical: 20,
+    padding: 15,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   cardHeader: {
-    padding: 10,
-    borderBottomColor: "#eee",
     borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+    paddingBottom: 10,
+    marginBottom: 10,
   },
   cardTitle: {
     fontSize: 18,
     fontWeight: "bold",
+    color: "#333",
   },
   cardContent: {
-    padding: 10,
+    marginBottom: 10,
   },
   cardText: {
     fontSize: 16,
+    color: "#555",
+    marginBottom: 5,
   },
-  container: {
-    flex: 1,
-    marginHorizontal: 16,
-    marginVertical: 10,
+  seeMoreText: {
+    color: "blue",
+    textAlign: "center",
+    marginTop: 5,
+    textDecorationLine: "underline",
+    borderWidth: 1,
+    borderColor: "blue",
+    borderRadius: 5,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
   },
-  section: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  paragraph: {
-    fontSize: 15,
+  btn_profile2: {
+    width: "100%",
+    backgroundColor: "#000",
+    backgroundColor: "#ed1c24",
+    padding: 10,
+    borderRadius: 10,
+    shadowOpacity: 80,
+    elevation: 15,
   },
 });
