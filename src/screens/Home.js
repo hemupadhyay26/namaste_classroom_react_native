@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,12 +9,16 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { btn, floating_add_btn } from "../commons/button";
+import momentTimezone from "moment-timezone";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FloatingAction } from "react-native-floating-action";
 import { AntDesign, Ionicons, Entypo } from "@expo/vector-icons";
 
 import CalendarPicker from "react-native-calendar-picker";
 import Floating_btn from "../commons/Floating_btn";
+import axios from "axios";
+import { API_BASE_URL } from "../../config";
+import moment from "moment-timezone";
 
 const Welcome = ({ navigation }) => {
   const actions = [
@@ -55,6 +59,31 @@ const Welcome = ({ navigation }) => {
   // const onDateChange = (date, type) => {
   //   setSelectedStartDate(date);
   // };
+  const [bookings, setBookings] = useState([]);
+  useEffect(() => {
+    const mybookings = async () => {
+      let userId = "";
+      await AsyncStorage.getItem("token").then((value) => {
+        userId = value;
+      });
+      axios
+        .get(`${API_BASE_URL}/mybookings`, {
+          headers: {
+            Authorization: "Bearer " + userId,
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          // console.log(response.data);
+          setBookings(response.data);
+        })
+        .catch((error) => {
+          console.error(error.message);
+        });
+    };
+    mybookings();
+  }, []);
+
   const onDateChange = (date, type) => {
     // console.log(date,type);
     if (type === "END_DATE") {
@@ -66,6 +95,8 @@ const Welcome = ({ navigation }) => {
   };
   const startDate = selectedStartDate ? selectedStartDate.toString() : "";
   const endDate = selectedEndDate ? selectedEndDate.toString() : "";
+
+  const today = moment().startOf("day");
 
   // Get the current date
   const currentDate = new Date();
@@ -108,46 +139,48 @@ const Welcome = ({ navigation }) => {
       <ScrollView style={{ marginHorizontal: 20 }}>
         {/* <Text>SELECTED DATE:{startDate}</Text>
         <Text>SELECTED END DATE:{endDate}</Text> */}
-
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.cardTitle}>Your Booked</Text>
+        {bookings.map((booking, index) => (
+          <View key={booking._id}>
+            {booking.bookings
+              .filter(
+                (booking) =>
+                  momentTimezone
+                    .tz(booking.bookingStart, "Asia/Kolkata")
+                    .isSame(today, "day") // Filter bookings for today's date
+              )
+              .map((filteredBooking) => (
+                <View style={styles.card} key={filteredBooking._id}>
+                  <View style={styles.cardHeader}>
+                    <Text style={styles.cardTitle}>{booking.name}</Text>
+                  </View>
+                  <View style={styles.cardContent}>
+                    {/* Display details for bookings on today's date */}
+                    <Text>{filteredBooking.purpose}</Text>
+                    <Text>Block: {booking.block}</Text>
+                    <Text>
+                      On:{" "}
+                      {momentTimezone
+                        .tz(filteredBooking.bookingStart, "Asia/Kolkata")
+                        .format("DD-MM-YY")}
+                    </Text>
+                    <Text style={styles.cardText}>
+                      {momentTimezone
+                        .tz(filteredBooking.bookingStart, "Asia/Kolkata")
+                        .format("h.mma")}{" "}
+                      -{" "}
+                      {momentTimezone
+                        .tz(filteredBooking.bookingEnd, "Asia/Kolkata")
+                        .format("h.mma")}
+                    </Text>
+                    {/* Other booking details */}
+                  </View>
+                </View>
+              ))}
           </View>
-          <View style={styles.cardContent}>
-            <Text style={styles.cardText}>9:00 - 10:00</Text>
-            <Text style={styles.cardText}>Main Seminar Hall</Text>
-          </View>
-        </View>
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.cardTitle}>Your Booked</Text>
-          </View>
-          <View style={styles.cardContent}>
-            <Text style={styles.cardText}>9:00 - 10:00</Text>
-            <Text style={styles.cardText}>Main Seminar Hall</Text>
-          </View>
-        </View>
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.cardTitle}>Your Booked</Text>
-          </View>
-          <View style={styles.cardContent}>
-            <Text style={styles.cardText}>9:00 - 10:00</Text>
-            <Text style={styles.cardText}>Main Seminar Hall</Text>
-          </View>
-        </View>
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.cardTitle}>Your Booked</Text>
-          </View>
-          <View style={styles.cardContent}>
-            <Text style={styles.cardText}>9:00 - 10:00</Text>
-            <Text style={styles.cardText}>Main Seminar Hall</Text>
-          </View>
-        </View>
+        ))}
       </ScrollView>
       <View style={{ bottom: 40 }}>
-        <Floating_btn navigation={navigation}/>
+        <Floating_btn navigation={navigation} />
       </View>
     </View>
   );

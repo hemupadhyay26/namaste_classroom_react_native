@@ -16,6 +16,7 @@ import BookClasses from "../src/screens/BookClasses";
 import MyBookings from "../src/screens/MyBookings";
 import Home from "../src/screens/Home";
 import BookClassroom from "../src/screens/BookClassroom";
+import OneClassYourBookingData from "../src/screens/OneClassYourBookingData";
 
 const StackNavigation = () => {
   const Stack = createNativeStackNavigator();
@@ -127,6 +128,7 @@ const StackNavigation = () => {
         <Stack.Screen name="booking" component={BookClasses} />
         <Stack.Screen name="profile" component={Profile} />*/}
         <Stack.Screen name="mybooking" component={MyBookings} /> 
+        <Stack.Screen name="mybookingclass" component={OneClassYourBookingData} /> 
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -25,7 +25,7 @@ const MyBookings = ({ navigation }) => {
           },
         })
         .then((response) => {
-          console.log(response.data);
+          // console.log(response.data);
           setBookings(response.data);
         })
         .catch((error) => {
@@ -35,20 +35,6 @@ const MyBookings = ({ navigation }) => {
     mybookings();
   }, []);
 
-  const [expandedBookingIndex, setExpandedBookingIndex] = useState(null);
-
-  const handleExpand = (index) => {
-    setExpandedBookingIndex(index === expandedBookingIndex ? null : index);
-  };
-
-  const isRecurringDailyWeeklyMonthly = (recurringArray) => {
-    return recurringArray.some(
-      (recurrence) =>
-        recurrence[1] === "Daily" ||
-        recurrence[1] === "Weekly" ||
-        recurrence[1] === "Monthly"
-    );
-  };
   // const startTime = momentTimezone
   // .tz(bookings.bookingStart, "Asia/Kolkata")
   // .format("h.mma");
@@ -119,7 +105,12 @@ const MyBookings = ({ navigation }) => {
                   </View>
                 ) : null
               )}
-              <TouchableOpacity style={styles.btn_profile2}>
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate("mybookingclass");
+                }}
+                style={styles.btn_profile2}
+              >
                 <Text
                   style={{
                     fontSize: 15,
