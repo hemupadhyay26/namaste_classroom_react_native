@@ -20,6 +20,8 @@ import {
   MultipleSelectList,
   SelectList,
 } from "react-native-dropdown-select-list";
+import moment from "moment";
+import { makeBooking } from "../api/booking";
 
 const BookClassroom = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -27,12 +29,17 @@ const BookClassroom = ({ navigation }) => {
   const { data } = route.params;
 
   const [bookingData, setBookingData] = useState({
-    // user: "", // User ID (you may get this from user authentication)
-    bookingStart: "2023-10-18T18:00:00.000Z", // Date and time for booking start
-    bookingEnd: "2023-10-18T21:00:00.000Z", // Date and time for booking end
+    bookingStart: "", // Date and time for booking start
+    bookingEnd: "", // Date and time for booking end
     recurring: [], // An array for recurring bookings
+    recurringEndDate: "2024-01-20",
     businessUnit: "", // Business unit (string)
     purpose: "", // Purpose of the booking (string)
+    // bookingStart: "2023-10-18T18:00:00.000Z", // Date and time for booking start
+    // bookingEnd: "2023-10-18T21:00:00.000Z", // Date and time for booking end
+    // recurring: [], // An array for recurring bookings
+    // businessUnit: "", // Business unit (string)
+    // purpose: "", // Purpose of the booking (string)
     // roomId: `${data._id}`, // Room ID (you may select from available rooms)
   });
   const [selected, setSelected] = useState("");
@@ -48,6 +55,7 @@ const BookClassroom = ({ navigation }) => {
     { key: "3", value: "B3" },
   ];
   const recurring = [
+    { key: "1", value: "Non recurring" },
     { key: "1", value: "Daily" },
     { key: "2", value: "Weekly" },
     { key: "3", value: "Monthly" },
@@ -92,31 +100,125 @@ const BookClassroom = ({ navigation }) => {
   ];
 
   // You can add more options as needed
+  const formatTime = (time) => {
+    let formatedTimeArray = [];
+    formatedTimeArray = time.split(":").map((item) => parseInt(item, 10));
+    return formatedTimeArray;
+  };
+  const handleRecurringData = (type, date) => {
+    let recurringData = [];
+    if (type !== "none") {
+      recurringData = [date, type];
+      recurringData[0][1] = recurringData[0][1] - 1;
+    } else {
+      recurringData = [];
+    }
+    return recurringData;
+  };
+  const handleEndDate = (dateArray) => {
+    let recurringEndDate = [];
+    dateArray.forEach((item) => {
+      recurringEndDate.push(parseInt(item));
+    });
+    return recurringEndDate;
+  };
+
+  const [congoMessage, setCongoMessage] = useState('');
 
   const handleBooking = async () => {
     // Handle the booking data here (e.g., send it to your backend API).
-    console.log("Booking Data:", bookingData);
+    // console.log("Booking Data:", bookingData);
+    const dateArray = moment(new Date())
+      .format("Y M D")
+      .split(" ")
+      .map((item) => parseInt(item, 10));
+    dateArray[1] = dateArray[1] - 1;
+    // console.log("Booking Data:", dateArray);
+    let token = "";
+    await AsyncStorage.getItem("token").then((value) => {
+      token = value;
+    });
+    const bookingStartTime = bookingData.bookingStart.split(" ")[0];
+    const startTime = formatTime(bookingStartTime);
+
+    const startDate = [...dateArray, ...startTime];
+
+    // console.log("start " + startDate);
+
+    const bookingEndTime = bookingData.bookingEnd.split(" ")[0];
+    const endTime = formatTime(bookingEndTime);
+
+    const endDate = [...dateArray, ...endTime];
+
+    // console.log("end " + endDate);
+
+    const businessUnit = bookingData.businessUnit;
+    let recurringEnd = handleEndDate(bookingData.recurringEndDate.split("-"));
+    const recurringType = bookingData.recurring;
+    let recurringData = handleRecurringData(recurringType, recurringEnd);
+    const purpose = bookingData.purpose;
+
+    // console.log("bussiness " + businessUnit);
+    // console.log("recurringEnd " + recurringEnd);
+    // console.log("recurring " + recurringType);
+    // console.log("recurringData " + recurringData);
+    // console.log("purpose " + purpose);
+    const roomId = data._id;
+    const bookingDataCheck = {
+      startDate,
+      endDate,
+      businessUnit,
+      purpose,
+      roomId,
+    };
+    const existingBookings = data.bookings;
+    // console.log("existingBookings " + existingBookings);
+    // Check if there is a clash and, if not, save the new booking to the database
     try {
-      let userId = "";
-      await AsyncStorage.getItem("token").then((value) => {
-        userId = value;
+      makeBooking(
+        {
+          token,
+          startDate,
+          endDate,
+          businessUnit,
+          purpose,
+          roomId,
+          recurringData,
+        },
+        existingBookings
+      ).then((updatedRoom) => {
+        // If the new booking is successfully saved to the database
+        setModalVisible(true),
+        setCongoMessage(`${updatedRoom.name} successfully booked.`);
       });
-      axios
-        .put(`${API_BASE_URL}/rooms/${data._id}`, bookingData, {
-          headers: {
-            "content-type": "application/json",
-            Authorization: `Bearer ${userId}`,
-          },
-        })
-        .then((response) => {
-          console.log(response.data);
-        })
-        .catch((error) => {
-          console.log("error" + error);
-        });
-    } catch (error) {
-      console.log("error" + error);
+    } catch (err) {
+      // If there is a booking clash and the booking could not be saved
+      setCongoMessage(
+        "Your booking could not be saved. Please ensure it does not clash with an existing booking and that it is a valid time in the future."
+      );
+      console.log(err);
     }
+    // try {
+    //   let userId = "";
+    //   await AsyncStorage.getItem("token").then((value) => {
+    //     userId = value;
+    //   });
+    //   axios
+    //     .put(`${API_BASE_URL}/rooms/${data._id}`, bookingData, {
+    //       headers: {
+    //         "content-type": "application/json",
+    //         Authorization: `Bearer ${userId}`,
+    //       },
+    //     })
+    //     .then((response) => {
+    //       console.log(response.data);
+    //     })
+    //     .catch((error) => {
+    //       console.log("error" + error);
+    //     });
+    // } catch (error) {
+    //   console.log("error" + error);
+    // }
   };
 
   return (
@@ -130,7 +232,9 @@ const BookClassroom = ({ navigation }) => {
         <Text style={styles.label}>Floor: {data.floor}</Text>
         <View style={styles.formContainer}>
           <SelectList
-            setSelected={(val) => setSelected(val)}
+            setSelected={(val) =>
+              setBookingData({ ...bookingData, bookingStart: val })
+            }
             data={startTime}
             save="value"
             placeholder="Select the start time"
@@ -138,33 +242,44 @@ const BookClassroom = ({ navigation }) => {
             boxStyles={{ marginBottom: 10 }}
           />
           <SelectList
-            setSelected={(val) => setSelected(val)}
+            setSelected={(val) =>
+              setBookingData({ ...bookingData, bookingEnd: val })
+            }
             data={endTime}
             save="value"
             placeholder="Select the end time"
             label="Ending time"
             boxStyles={{ marginBottom: 10 }}
           />
-          <MultipleSelectList
-            setSelected={(val) => setSelected(val)}
+          <SelectList
+            setSelected={(val) =>
+              setBookingData({ ...bookingData, recurring: val })
+            }
             data={recurring}
             save="value"
             placeholder="Select the recurring"
             label="Recurring"
+            boxStyles={{ marginBottom: 10 }}
           />
-          <MultipleSelectList
-            setSelected={(val) => setSelected(val)}
+          <SelectList
+            setSelected={(val) =>
+              setBookingData({ ...bookingData, businessUnit: val })
+            }
             data={businessUnits}
             save="value"
             placeholder="Select the business unit"
             label="Business unit"
+            boxStyles={{ marginBottom: 10 }}
           />
-          <MultipleSelectList
-            setSelected={(val) => setSelected(val)}
+          <SelectList
+            setSelected={(val) =>
+              setBookingData({ ...bookingData, purpose: val })
+            }
             data={purposes}
             save="value"
             placeholder="Select the purpose"
             label="Purpose"
+            boxStyles={{ marginBottom: 10 }}
           />
           {/* <TextInput
             style={styles.input}
@@ -174,8 +289,14 @@ const BookClassroom = ({ navigation }) => {
             }
           /> */}
         </View>
-        <TouchableOpacity onPress={handleBooking}>
-          <Button title="Book Room"  color={"#ed1c24"}  onPress={() => setModalVisible(true)} />
+        <TouchableOpacity>
+          <Button
+            title="Book Room"
+            color={"#ed1c24"}
+            onPress={() => {
+              handleBooking();
+            }}
+          />
         </TouchableOpacity>
       </View>
       <View style={styles.container}>
@@ -190,7 +311,7 @@ const BookClassroom = ({ navigation }) => {
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
               <Text style={{ margin: 20 }}>
-                You have successfully add the booking!!!!
+                {congoMessage}
               </Text>
               <Button
                 title="Close"

@@ -42,7 +42,6 @@ const MyBookings = ({ navigation }) => {
   //   .tz(bookingData.bookingEnd, "Asia/Kolkata")
   //   .format("h.mma");
   return (
-    // <DrawerNavigation/>
     <View style={styles.main}>
       <ScrollView contentContainerStyle={{ marginVertical: 40 }}>
         {bookings.map((booking) => (

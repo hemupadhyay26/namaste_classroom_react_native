@@ -41,17 +41,18 @@ const BookClasses = ({ navigation }) => {
   const [selectedCapacity, setSelectedCapacity] = useState([]);
 
   const floors = [
-    { key: "1", value: "Ground" },
-    { key: "2", value: "First" },
-    { key: "3", value: "Second" },
+    { key: "1", value: "First" },
+    { key: "2", value: "Second" },
+    { key: "3", value: "Third" },
+    { key: "4", value: "Fourth" },
   ];
 
   const capacitys = [
-    { key: "1", value: "16" },
-    { key: "2", value: "18" },
-    { key: "3", value: "30" },
-    { key: "4", value: "50" },
-    { key: "5", value: "60" },
+    { key: "1", value: "30" },
+    { key: "2", value: "40" },
+    { key: "3", value: "50" },
+    { key: "4", value: "60" },
+    { key: "5", value: "70" },
   ];
 
   const [viewFilters, setViewFilters] = useState(true);
@@ -81,6 +82,12 @@ const BookClasses = ({ navigation }) => {
       console.error(error);
     }
   };
+
+  const handleReset = () => {
+    setSelectedFloor([]);
+    setSelectedCapacity([]);
+  };
+
   return (
     // <DrawerNavigation/>
     <ScrollView>
@@ -140,6 +147,7 @@ const BookClasses = ({ navigation }) => {
               onPress={() => {
                 // setSelected("");
                 // roomsData();
+                handleReset();
                 console.log(roomList[0]);
               }}
             >
@@ -185,6 +193,7 @@ const BookClasses = ({ navigation }) => {
           onPress={() => {
             navigation.navigate("bookclassroom", { data: room });
           }}
+          key={room._id}
         >
           <View style={styles.card} key={room._id}>
             <View style={styles.cardHeader}>
