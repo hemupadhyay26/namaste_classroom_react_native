@@ -6,7 +6,6 @@ import {
   ActivityIndicator,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import DrawerNavigation from "../../navigation/DrawerNavigation";
 import axios from "axios";
 import { API_BASE_URL } from "../../config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -82,7 +81,7 @@ const MyBookings = ({ navigation }) => {
             </View>
             <View style={styles.cardContent}>
               {booking.bookings.map((booking, bIndex) =>
-                bIndex === 0 ? (
+                bIndex === 0 && booking ? (
                   <View key={booking._id}>
                     <View>
                       <Text style={styles.cardText}>

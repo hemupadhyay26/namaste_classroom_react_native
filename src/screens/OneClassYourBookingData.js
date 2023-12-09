@@ -42,6 +42,7 @@ const BookingItem = ({ booking, deleteBooking }) => (
 
 const OneClassYourBookingData = ({ route, navigation }) => {
   const { data } = route.params;
+  console.log(data);
 
   const deleteBooking = async (roomId, bookingId) => {
     console.log(`Deleting  front ${roomId} from ${bookingId}`);

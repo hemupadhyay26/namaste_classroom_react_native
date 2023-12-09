@@ -37,7 +37,7 @@ const BookClassroom = ({ navigation }) => {
     bookingStart: "", // Date and time for booking start
     bookingEnd: "", // Date and time for booking end
     recurring: [], // An array for recurring bookings
-    recurringEndDate: "",
+    recurringEndDate: startDate,
     businessUnit: "", // Business unit (string)
     purpose: "", // Purpose of the booking (string)
     // bookingStart: "2023-10-18T18:00:00.000Z", // Date and time for booking start
@@ -112,7 +112,7 @@ const BookClassroom = ({ navigation }) => {
   };
   const handleRecurringData = (type, date) => {
     let recurringData = [];
-    if (type !== "none") {
+    if (type !== "Non recurring") {
       recurringData = [date, type];
       recurringData[0][1] = recurringData[0][1] - 1;
     } else {
@@ -158,7 +158,7 @@ const BookClassroom = ({ navigation }) => {
     // console.log("end " + endDate);
 
     const businessUnit = bookingData.businessUnit;
-    let recurringEnd = handleEndDate(bookingData.recurringEndDate.split("-"));
+    let recurringEnd = handleEndDate(bookingData.recurringEndDate.split("/"));
     const recurringType = bookingData.recurring;
     let recurringData = handleRecurringData(recurringType, recurringEnd);
     const purpose = bookingData.purpose;
@@ -206,31 +206,22 @@ const BookClassroom = ({ navigation }) => {
   };
 
   const [open, setOpen] = useState(false);
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(startDate);
 
   function handleOnPress() {
     setOpen(!open);
-    // console.log("onPress"+ date);
   }
 
   const handleChange = (newDate) => {
-    // setBookingData((prevBookingData) => ({
-    //   ...prevBookingData,
-    //   recurringEndDate: newDate,
-    // }));
     setDate(newDate);
   };
 
-  const convertDateFormat = (dateString) => {
-    return dateString.split("/").join("-");
-  };
-
   const handleSaveDate = () => {
-    console.log("Selected date:", date);
+    // console.log("Selected date:", date);
 
-    bookingData.recurringEndDate = convertDateFormat(date);
+    bookingData.recurringEndDate = (date);
 
-    console.log("recc date", bookingData.recurringEndDate);
+    // console.log("recc date", bookingData.recurringEndDate);
 
     setOpen(false);
   };
@@ -304,9 +295,7 @@ const BookClassroom = ({ navigation }) => {
                 <TouchableOpacity onPress={handleSaveDate}>
                   <Text>Save</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={handleOnPress}>
-                  <Text>Close</Text>
-                </TouchableOpacity>
+                
               </View>
             </View>
           </Modal>
@@ -331,13 +320,7 @@ const BookClassroom = ({ navigation }) => {
             label="Purpose"
             boxStyles={{ marginBottom: 10 }}
           />
-          {/* <TextInput
-            style={styles.input}
-            placeholder={bookingData.roomId}
-            onChangeText={(text) =>
-              setBookingData({ ...bookingData, roomId: text })
-            }
-          /> */}
+          
         </View>
         <TouchableOpacity>
           <Button

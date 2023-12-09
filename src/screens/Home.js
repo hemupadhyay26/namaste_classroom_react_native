@@ -23,38 +23,7 @@ import moment from "moment-timezone";
 import { useFocusEffect } from "@react-navigation/native";
 
 const Welcome = ({ navigation }) => {
-  const actions = [
-    {
-      text: "Add",
-      icon: <AntDesign name="plus" size={24} color="#fff" />,
-      name: "booking",
-      position: 1,
-    },
-    {
-      text: "profile",
-      icon: <Ionicons name="person-circle" size={24} color="#fff" />,
-      name: "profile",
-      position: 2,
-    },
-    {
-      text: "My Booking",
-      icon: <Entypo name="list" size={24} color="#fff" />,
-      name: "mybooking",
-      position: 3,
-    },
-    // {
-    //   text: "Location",
-    //   icon: require("./images/ic_room_white.png"),
-    //   name: "bt_room",
-    //   position: 3,
-    // },
-    // {
-    //   text: "Video",
-    //   icon: require("./images/ic_videocam_white.png"),
-    //   name: "bt_videocam",
-    //   position: 4,
-    // },
-  ];
+  
 
   const [selectedStartDate, setSelectedStartDate] = useState(null);
   const [selectedEndDate, setSelectedEndDate] = useState(null);
