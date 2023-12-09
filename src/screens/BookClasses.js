@@ -1,4 +1,10 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 // import Checkbox from "expo-checkbox";
 import { ScrollView } from "react-native-gesture-handler";
@@ -26,12 +32,15 @@ const BookClasses = ({ navigation }) => {
           .then((response) => {
             // console.log(response.data);
             setRoomList(response.data);
+            setLoading(false);
           })
           .catch((error) => {
             console.log(error);
+            setLoading(false);
           });
-      } catch (error) {
-        console.log("Error-> " + error);
+        } catch (error) {
+          console.log("Error-> " + error);
+          setLoading(false);
       }
     };
     roomsData();
@@ -39,6 +48,7 @@ const BookClasses = ({ navigation }) => {
 
   const [selectedFloor, setSelectedFloor] = useState([]);
   const [selectedCapacity, setSelectedCapacity] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const floors = [
     { key: "1", value: "First" },
@@ -74,12 +84,15 @@ const BookClasses = ({ navigation }) => {
         })
         .then((response) => {
           setRoomList(response.data);
+          setLoading(false);
         })
         .catch((error) => {
           console.log(error);
+          setLoading(false);
         });
     } catch (error) {
       console.error(error);
+      setLoading(false);
     }
   };
 
@@ -103,6 +116,7 @@ const BookClasses = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </View>
+
       {viewFilters ? (
         <View name="filter">
           <View style={styles.container}>
@@ -188,34 +202,40 @@ const BookClasses = ({ navigation }) => {
           {roomList.length}
         </Text>
       </Text>
-      {roomList.map((room) => (
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate("bookclassroom", { data: room });
-          }}
-          key={room._id}
-        >
-          <View style={styles.card} key={room._id}>
-            <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>{room.name}</Text>
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#ED1C24" />
+        </View>
+      ) : (
+        roomList.map((room) => (
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("bookclassroom", { data: room });
+            }}
+            key={room._id}
+          >
+            <View style={styles.card} key={room._id}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.cardTitle}>{room.name}</Text>
+              </View>
+              <View style={styles.cardContent}>
+                <Text style={styles.cardText}>Capacity - {room.capacity}</Text>
+                <Text style={styles.cardText}>Floors - {room.floor}</Text>
+                <Text style={styles.cardText} key={room._id}>
+                  Assets -{" "}
+                  {Object.keys(room.assets).filter(
+                    (asset) => room.assets[asset] === true
+                  ).length > 0
+                    ? Object.keys(room.assets)
+                        .filter((asset) => room.assets[asset] === true)
+                        .join(", ")
+                    : "N/A"}
+                </Text>
+              </View>
             </View>
-            <View style={styles.cardContent}>
-              <Text style={styles.cardText}>Capacity - {room.capacity}</Text>
-              <Text style={styles.cardText}>Floors - {room.floor}</Text>
-              <Text style={styles.cardText} key={room._id}>
-                Assets -{" "}
-                {Object.keys(room.assets).filter(
-                  (asset) => room.assets[asset] === true
-                ).length > 0
-                  ? Object.keys(room.assets)
-                      .filter((asset) => room.assets[asset] === true)
-                      .join(", ")
-                  : "N/A"}
-              </Text>
-            </View>
-          </View>
-        </TouchableOpacity>
-      ))}
+          </TouchableOpacity>
+        ))
+      )}
 
       {/* <Floating_btn navigation={navigation} /> */}
     </ScrollView>

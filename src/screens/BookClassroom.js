@@ -5,19 +5,17 @@ import {
   View,
   Button,
   Modal,
-  Image,
-  Animated,
-  TextInput,
   TouchableOpacity,
 } from "react-native";
 import React, { useState } from "react";
+import DatePicker, {
+  getFormatedDate,
+} from "react-native-modern-datepicker";
+
 import { useRoute } from "@react-navigation/native";
-import axios from "axios";
 import { Ionicons } from "@expo/vector-icons";
-import { API_BASE_URL } from "../../config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
-  MultipleSelectList,
   SelectList,
 } from "react-native-dropdown-select-list";
 import moment from "moment";
@@ -28,11 +26,18 @@ const BookClassroom = ({ navigation }) => {
   const route = useRoute();
   const { data } = route.params;
 
+  const today = new Date();
+
+  const startDate = getFormatedDate(
+    today.setDate(today.getDate()),
+    "YYYY-MM-DD"
+  );
+
   const [bookingData, setBookingData] = useState({
     bookingStart: "", // Date and time for booking start
     bookingEnd: "", // Date and time for booking end
     recurring: [], // An array for recurring bookings
-    recurringEndDate: "2024-01-20",
+    recurringEndDate: "",
     businessUnit: "", // Business unit (string)
     purpose: "", // Purpose of the booking (string)
     // bookingStart: "2023-10-18T18:00:00.000Z", // Date and time for booking start
@@ -69,15 +74,15 @@ const BookClassroom = ({ navigation }) => {
     { key: "6", value: "11:30 am" },
     { key: "7", value: "12:00 pm" },
     { key: "8", value: "12:30 pm" },
-    { key: "9", value: "1:00 pm" },
-    { key: "10", value: "1:30 pm" },
-    { key: "11", value: "2:00 pm" },
-    { key: "12", value: "2:30 pm" },
-    { key: "13", value: "3:00 pm" },
-    { key: "14", value: "3:30 pm" },
-    { key: "15", value: "4:00 pm" },
-    { key: "16", value: "4:30 pm" },
-    { key: "17", value: "5:00 pm" },
+    { key: "9", value: "13:00 pm" },
+    { key: "10", value: "13:30 pm" },
+    { key: "11", value: "14:00 pm" },
+    { key: "12", value: "14:30 pm" },
+    { key: "13", value: "15:00 pm" },
+    { key: "14", value: "15:30 pm" },
+    { key: "15", value: "16:00 pm" },
+    { key: "16", value: "16:30 pm" },
+    { key: "17", value: "17:00 pm" },
   ];
   const startTime = [
     { key: "1", value: "9:00 am" },
@@ -88,15 +93,15 @@ const BookClassroom = ({ navigation }) => {
     { key: "6", value: "11:30 am" },
     { key: "7", value: "12:00 pm" },
     { key: "8", value: "12:30 pm" },
-    { key: "9", value: "1:00 pm" },
-    { key: "10", value: "1:30 pm" },
-    { key: "11", value: "2:00 pm" },
-    { key: "12", value: "2:30 pm" },
-    { key: "13", value: "3:00 pm" },
-    { key: "14", value: "3:30 pm" },
-    { key: "15", value: "4:00 pm" },
-    { key: "16", value: "4:30 pm" },
-    { key: "17", value: "5:00 pm" },
+    { key: "9", value: "13:00 pm" },
+    { key: "10", value: "13:30 pm" },
+    { key: "11", value: "14:00 pm" },
+    { key: "12", value: "14:30 pm" },
+    { key: "13", value: "15:00 pm" },
+    { key: "14", value: "15:30 pm" },
+    { key: "15", value: "16:00 pm" },
+    { key: "16", value: "16:30 pm" },
+    { key: "17", value: "17:00 pm" },
   ];
 
   // You can add more options as needed
@@ -123,7 +128,7 @@ const BookClassroom = ({ navigation }) => {
     return recurringEndDate;
   };
 
-  const [congoMessage, setCongoMessage] = useState('');
+  const [congoMessage, setCongoMessage] = useState("");
 
   const handleBooking = async () => {
     // Handle the booking data here (e.g., send it to your backend API).
@@ -189,7 +194,7 @@ const BookClassroom = ({ navigation }) => {
       ).then((updatedRoom) => {
         // If the new booking is successfully saved to the database
         setModalVisible(true),
-        setCongoMessage(`${updatedRoom.name} successfully booked.`);
+          setCongoMessage(`${updatedRoom.name} successfully booked.`);
       });
     } catch (err) {
       // If there is a booking clash and the booking could not be saved
@@ -198,27 +203,36 @@ const BookClassroom = ({ navigation }) => {
       );
       console.log(err);
     }
-    // try {
-    //   let userId = "";
-    //   await AsyncStorage.getItem("token").then((value) => {
-    //     userId = value;
-    //   });
-    //   axios
-    //     .put(`${API_BASE_URL}/rooms/${data._id}`, bookingData, {
-    //       headers: {
-    //         "content-type": "application/json",
-    //         Authorization: `Bearer ${userId}`,
-    //       },
-    //     })
-    //     .then((response) => {
-    //       console.log(response.data);
-    //     })
-    //     .catch((error) => {
-    //       console.log("error" + error);
-    //     });
-    // } catch (error) {
-    //   console.log("error" + error);
-    // }
+  };
+
+  const [open, setOpen] = useState(false);
+  const [date, setDate] = useState("");
+
+  function handleOnPress() {
+    setOpen(!open);
+    // console.log("onPress"+ date);
+  }
+
+  const handleChange = (newDate) => {
+    // setBookingData((prevBookingData) => ({
+    //   ...prevBookingData,
+    //   recurringEndDate: newDate,
+    // }));
+    setDate(newDate);
+  };
+
+  const convertDateFormat = (dateString) => {
+    return dateString.split("/").join("-");
+  };
+
+  const handleSaveDate = () => {
+    console.log("Selected date:", date);
+
+    bookingData.recurringEndDate = convertDateFormat(date);
+
+    console.log("recc date", bookingData.recurringEndDate);
+
+    setOpen(false);
   };
 
   return (
@@ -230,6 +244,7 @@ const BookClassroom = ({ navigation }) => {
           <Ionicons name="person" size={20} color="black" />: {data.capacity}
         </Text>
         <Text style={styles.label}>Floor: {data.floor}</Text>
+        <Text style={styles.label}>Block: {data.block}</Text>
         <View style={styles.formContainer}>
           <SelectList
             setSelected={(val) =>
@@ -261,6 +276,41 @@ const BookClassroom = ({ navigation }) => {
             label="Recurring"
             boxStyles={{ marginBottom: 10 }}
           />
+          <TouchableOpacity
+            onPress={handleOnPress}
+            style={{
+              borderWidth: 1,
+              borderColor: "gray",
+              borderRadius: 10,
+              padding: 10,
+              alignItems: "center",
+              marginBottom: 10,
+              color: "gray",
+            }}
+          >
+            <Text>{date ? `${date}` : `Enter the reccurence end date`}</Text>
+          </TouchableOpacity>
+
+          <Modal animationType="slide" transparent={true} visible={open}>
+            <View style={styles.centeredView1}>
+              <View style={styles.modalView1}>
+                <DatePicker
+                  mode="calendar"
+                  minimumDate={startDate}
+                  selected={date}
+                  onSelectedChange={handleChange}
+                />
+
+                <TouchableOpacity onPress={handleSaveDate}>
+                  <Text>Save</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleOnPress}>
+                  <Text>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+
           <SelectList
             setSelected={(val) =>
               setBookingData({ ...bookingData, businessUnit: val })
@@ -299,6 +349,7 @@ const BookClassroom = ({ navigation }) => {
           />
         </TouchableOpacity>
       </View>
+      
       <View style={styles.container}>
         <Modal
           animationType="slide"
@@ -310,13 +361,14 @@ const BookClassroom = ({ navigation }) => {
         >
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
-              <Text style={{ margin: 20 }}>
-                {congoMessage}
-              </Text>
+              <Text style={{ margin: 20 }}>{congoMessage}</Text>
               <Button
                 title="Close"
                 color={"#f2c94c"}
-                onPress={() => setModalVisible(!modalVisible)}
+                onPress={() => {
+                  setModalVisible(!modalVisible);
+                  navigation.goBack();
+                }}
               />
             </View>
           </View>
@@ -332,6 +384,30 @@ const styles = StyleSheet.create({
     backgroundColor: "#f4f4f4",
     marginVertical: 40,
   },
+
+  centeredView1: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+  },
+  modalView1: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    width: "90%",
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+
   header: {
     fontSize: 24,
     fontWeight: "bold",

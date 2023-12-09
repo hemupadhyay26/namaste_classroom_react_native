@@ -1,4 +1,10 @@
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import DrawerNavigation from "../../navigation/DrawerNavigation";
 import axios from "axios";
@@ -8,33 +14,42 @@ import Floating_btn from "../commons/Floating_btn";
 import { ScrollView } from "react-native-gesture-handler";
 import moment from "moment";
 import momentTimezone from "moment-timezone";
+import { useFocusEffect } from "@react-navigation/native";
 
 const MyBookings = ({ navigation }) => {
   const [bookings, setBookings] = useState([]);
-  useEffect(() => {
-    const mybookings = async () => {
-      let userId = "";
-      await AsyncStorage.getItem("token").then((value) => {
-        userId = value;
+  const [loading, setLoading] = useState(true);
+
+  const mybookings = async () => {
+    let userId = "";
+    await AsyncStorage.getItem("token").then((value) => {
+      userId = value;
+    });
+    axios
+      .get(`${API_BASE_URL}/mybookings`, {
+        headers: {
+          Authorization: "Bearer " + userId,
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => {
+        // console.log(response.data);
+        setBookings(response.data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error(error.message);
+        setLoading(false);
       });
-      axios
-        .get(`${API_BASE_URL}/mybookings`, {
-          headers: {
-            Authorization: "Bearer " + userId,
-            "Content-Type": "application/json",
-          },
-        })
-        .then((response) => {
-          // console.log(response.data);
-          setBookings(response.data);
-        })
-        .catch((error) => {
-          console.error(error.message);
-        });
-    };
+  };
+  useEffect(() => {
     mybookings();
   }, []);
-
+  useFocusEffect(
+    React.useCallback(() => {
+      mybookings();
+    }, [])
+  );
   // const startTime = momentTimezone
   // .tz(bookings.bookingStart, "Asia/Kolkata")
   // .format("h.mma");
@@ -55,6 +70,11 @@ const MyBookings = ({ navigation }) => {
         >
           My Bookings
         </Text>
+        {loading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#ED1C24" />
+          </View>
+        )}
         {bookings.map((booking, index) => (
           <View style={styles.card} key={booking._id}>
             <View style={styles.cardHeader}>
@@ -107,7 +127,7 @@ const MyBookings = ({ navigation }) => {
               )}
               <TouchableOpacity
                 onPress={() => {
-                  navigation.navigate("mybookingclass");
+                  navigation.navigate("mybookingclass", { data: booking });
                 }}
                 style={styles.btn_profile2}
               >
@@ -140,7 +160,7 @@ const styles = StyleSheet.create({
   main: {
     flex: 1,
     backgroundColor: "#f0f0f0",
-    padding: 20,
+    paddingHorizontal: 20,
   },
 
   card: {

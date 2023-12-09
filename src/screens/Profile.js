@@ -143,7 +143,7 @@ const Profile = ({ navigation }) => {
 
   //profile pic
 
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState("https://avatar.iran.liara.run/public/50");
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library

@@ -75,7 +75,7 @@ const StackNavigation = () => {
                   />
 
                   <Text style={{ fontSize: 12, color: "#ed1c24" }}>
-                    Add Class
+                    Classes
                   </Text>
                 </View>
               );
