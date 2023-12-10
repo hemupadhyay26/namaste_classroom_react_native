@@ -81,7 +81,7 @@ const MyBookings = ({ navigation }) => {
             </View>
             <View style={styles.cardContent}>
               {booking.bookings.map((booking, bIndex) =>
-                bIndex === 0 && booking ? (
+                bIndex === 100 && booking ? (
                   <View key={booking._id}>
                     <View>
                       <Text style={styles.cardText}>

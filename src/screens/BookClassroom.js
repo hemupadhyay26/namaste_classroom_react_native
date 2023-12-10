@@ -61,9 +61,9 @@ const BookClassroom = ({ navigation }) => {
   ];
   const recurring = [
     { key: "1", value: "Non recurring" },
-    { key: "1", value: "Daily" },
-    { key: "2", value: "Weekly" },
-    { key: "3", value: "Monthly" },
+    { key: "2", value: "daily" },
+    { key: "3", value: "weekly" },
+    { key: "4", value: "monthly" },
   ];
   const endTime = [
     { key: "1", value: "9:00 am" },
@@ -137,7 +137,7 @@ const BookClassroom = ({ navigation }) => {
       .format("Y M D")
       .split(" ")
       .map((item) => parseInt(item, 10));
-    dateArray[1] = dateArray[1] - 1;
+    // dateArray[1] = dateArray[1]-1;
     // console.log("Booking Data:", dateArray);
     let token = "";
     await AsyncStorage.getItem("token").then((value) => {

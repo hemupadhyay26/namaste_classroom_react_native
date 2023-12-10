@@ -13,6 +13,7 @@ import { Entypo, Feather, AntDesign } from "@expo/vector-icons";
 import { TextInput } from "react-native-gesture-handler";
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
+import { useFocusEffect } from "@react-navigation/native";
 
 const Profile = ({ navigation }) => {
   // ------------------//
@@ -67,69 +68,75 @@ const Profile = ({ navigation }) => {
   };
   // -----------------//
   // const [userId, setUserId] = useState(null);
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        let userId = "";
-        await AsyncStorage.getItem("token").then((value) => {
-          userId = value;
+  async function fetchData() {
+    try {
+      let userId = "";
+      await AsyncStorage.getItem("token").then((value) => {
+        userId = value;
+      });
+
+      // console.log("16");
+      // console.log(userId);
+      axios
+        .get(`${API_BASE_URL}/profile`, {
+          headers: {
+            Authorization: `Bearer ${userId}`, // Assuming it's a Bearer token
+          },
+        })
+        .then((response) => {
+          // Handle the successful
+          // console.log("89-->", response.data);
+          setData(response.data);
+          if (response.data.profile) {
+            axios
+              .get(`${API_BASE_URL}/url/${response.data.profile}`, {
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              })
+              .then((response) => {
+                setImage(response.data);
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+          }
+        })
+        .catch((error) => {
+          // Handle any errors here
+          console.error(error);
         });
+      // const response = await fetch(`${API_BASE_URL}/profile`, {
+      //   method: "GET",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     authorization: `Bearer ${userId}`,
+      //   },
+      // });
+      // // console.log(response);
 
-        // console.log("16");
-        // console.log(userId);
-        axios
-          .get(`${API_BASE_URL}/profile`, {
-            headers: {
-              Authorization: `Bearer ${userId}`, // Assuming it's a Bearer token
-            },
-          })
-          .then((response) => {
-            // Handle the successful
-            // console.log("89-->", response.data);
-            setData(response.data);
-            if (response.data.profile) {
-              axios
-                .get(`${API_BASE_URL}/url/${response.data.profile}`, {
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                })
-                .then((response) => {
-                  setImage(response.data);
-                })
-                .catch((err) => {
-                  console.log(err);
-                });
-            }
-          })
-          .catch((error) => {
-            // Handle any errors here
-            console.error(error);
-          });
-        // const response = await fetch(`${API_BASE_URL}/profile`, {
-        //   method: "GET",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //     authorization: `Bearer ${userId}`,
-        //   },
-        // });
-        // // console.log(response);
-
-        // if (response.error) {
-        //   const errorData = await response.json();
-        //   setErrmsg(errorData.error);
-        // } else {
-        //   const data = await response.json();
-        //   console.log(data);
-        //   handleTextChange("email", data.email);
-        //   handleTextChange("userName", data.firstName);
-        // }
-      } catch (error) {
-        console.error("An error occurred:", error);
-      }
+      // if (response.error) {
+      //   const errorData = await response.json();
+      //   setErrmsg(errorData.error);
+      // } else {
+      //   const data = await response.json();
+      //   console.log(data);
+      //   handleTextChange("email", data.email);
+      //   handleTextChange("userName", data.firstName);
+      // }
+    } catch (error) {
+      console.error("An error occurred:", error);
     }
+  }
+  useEffect(() => {
     fetchData();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchData();
+    }, [])
+  );
 
   //
   const logout = async () => {
